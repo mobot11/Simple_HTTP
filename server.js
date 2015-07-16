@@ -81,21 +81,23 @@ app.patch('/user/userPatch:name', function(req, res) {
 	var file = name.slice(1,name.length);
 	var newData = req.body;
 	var fileName = __dirname + '/userData/' + file + '.json';
-	console.log(fileName);
 	fs.readFile(fileName, function(err,data) {
 		if(err) throw err;
 		var fileData = JSON.parse(data.toString());
 		console.log(fileData);
-		var patchData = fileData;
-		console.log(newData);
-		for(key in patchData) {			
-			if(patchData[key] !== newData[key]) {
-				patchData[key] === newData[key];
-			}
-			console.log(patchData);
-		}
-		console.log(patchData);
 
+		for(var key in newData) {
+			if(newData[key] === undefined) {
+				continue;
+			}
+			if(newData[key]!==fileData[key]) {
+				fileData[key] = newData[key]
+			}
+		}
+		console.log(fileData);
+   fs.writeFile(fileName, JSON.stringify(fileData), function(err) {
+   	if(err) throw err;
+   })
 	});
 })
 
