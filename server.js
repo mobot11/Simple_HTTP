@@ -5,29 +5,48 @@ var app = express();
 var fs = require('fs');
 
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 var port = 8000;
 
-// app.use(express.static(__dirname + '/lib'));
+app.get("/users", function(req, res) {
+	var dir = __dirname + "/userData/";
+	var data = {};
+	console.log(req.params);
 
-app.get("/user", function(req, res) {
-	res.write('<h1>user page</h1>')
-})
-app.post('/userPost', function(req, res) {
-	var userData = req.body;
-	var fileName = userData.name +'.json';
-	fileName = fileName.replace(/\s+/g, '')
-	console.log(fileName);
-	fs.exists(fileName, function(exists) {
-		if(exists) {
-			fs.appendFile(__dirname + '/userData/' + fileName, JSON.stringify(userData), function(err) {
-				if(err) return(console.log('your append fucked up!'));
+	fs.readdir(dir, function(err,files) {
+		if (err) throw err;
+		var count = 0;
+		files.forEach(function(file) {
+			count++
+			fs.readFile(dir+file, 'utf-8', function(err,json) {
+				if (err) throw err;
+				data[file]=json;
+				count--;
+				if(count===0) {
+					console.log(data);
+				}
 			});
-		}
-		else fs.writeFile(__dirname + '/userData/' + fileName, JSON.stringify(userData), function(err) {
-		if (err) return console.log('your write fucked up!');
+		});
 	});
 });
-	res.end("yes");
+
+app.get("/user:name", function(req,res) {
+	var name = req.params.name;
+	var file = name.slice(1,name.length);
+	var fileName = file + '.json';
+
+	fs.readFile(__dirname + '/userData/' + fileName, 'utf-8', function(err, data) {
+		if(err) throw err;
+		console.log(data);
+	});
+});
+
+app.post('/login',function(req,res){
+	console.log(req.body);
+  // var user_name=req.body.user;
+  // var password=req.body.password;
+  // console.log("User name = "+user_name+", password is "+password);
+  res.end("yes");
 });
 
 
