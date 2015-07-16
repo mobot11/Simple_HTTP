@@ -3,7 +3,6 @@ var express = require("express");
 var bodyParser = require("body-parser");
 var app = express();
 var fs = require('fs');
-var fileNameGenerator = require("./fileNameGenerator");
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -49,9 +48,7 @@ app.post('/user/userPost:name',function(req,res){
 	var fileName = __dirname + '/userData/' + file + '.json';
 	fs.exists(fileName, function(exists) {
 		if(exists) {
-			fs.appendFile(fileName, JSON.stringify(userData), function(err) {
-				if(err) throw err;
-			})
+			console.log('file already exists!');
 		 } 
 		else {
 			fs.writeFile(fileName, JSON.stringify(userData), function(err) {
@@ -100,7 +97,6 @@ app.patch('/user/userPatch:name', function(req, res) {
    })
 	});
 })
-
 
 
 
