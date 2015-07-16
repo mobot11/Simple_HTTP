@@ -41,11 +41,26 @@ app.get("/user:name", function(req,res) {
 	});
 });
 
-app.post('/login',function(req,res){
-	console.log(req.body);
-  // var user_name=req.body.user;
-  // var password=req.body.password;
-  // console.log("User name = "+user_name+", password is "+password);
+app.post('/user/userPost:name',function(req,res){
+	var userData = req.body;
+	var name = req.params.name;
+	console.log(userData);
+	console.log(name);
+	var file = name.slice(1,name.length);
+	var fileName = __dirname + '/userData/' + file + '.json';
+	console.log(fileName);
+	fs.exists(fileName, function(exists) {
+		if(exists) {
+			fs.appendFile(fileName, JSON.stringify(userData), function(err) {
+				if(err) throw err;
+			})
+		 } 
+		else {
+			fs.writeFile(fileName, JSON.stringify(userData), function(err) {
+				if(err) throw err;
+			})
+		}
+	})
   res.end("yes");
 });
 
@@ -53,6 +68,8 @@ app.post('/login',function(req,res){
 app.listen(port,function(){
   console.log("Started on PORT " + port);
 })
+
+
 
 
 
