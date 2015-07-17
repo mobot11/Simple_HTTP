@@ -11,8 +11,6 @@ var port = 8000;
 app.get("/users", function(req, res) {
 	var dir = __dirname + "/userData/";
 	var data = {};
-	console.log(req.params);
-
 	fs.readdir(dir, function(err,files) {
 		if (err) throw err;
 		var count = 0;
@@ -23,14 +21,14 @@ app.get("/users", function(req, res) {
 				data[file]=json;
 				count--;
 				if(count===0) {
-					console.log(data);
+					res.send(data);
 				}
 			});
 		});
 	});
 });
 
-app.get("/user:name", function(req,res) {
+app.get("/user/:name", function(req,res) {
 	var name = req.params.name;
 	var file = name.slice(1,name.length);
 	var fileName = file + '.json';
@@ -38,25 +36,27 @@ app.get("/user:name", function(req,res) {
 	fs.readFile(__dirname + '/userData/' + fileName, 'utf-8', function(err, data) {
 		if(err) throw err;
 		console.log(data);
+		res.send(data);
 	});
 });
 
-app.post('/user/userPost:name',function(req,res){
+app.post('/user/userPost/:name',function(req,res){
 	var userData = req.body;
 	var name = req.params.name;
 	var file = name.slice(1,name.length);
 	var fileName = __dirname + '/userData/' + file + '.json';
 	fs.exists(fileName, function(exists) {
 		if(exists) {
-			console.log('file already exists!');
+			res.send('this user already exists');
 		 } 
 		else {
 			fs.writeFile(fileName, JSON.stringify(userData), function(err) {
 				if(err) throw err;
+				res.send('success user ' + file + ' was created');
 			})
 		}
 	})
-  res.end("yes");
+ 
 });
 
 app.delete('/user/userDelete:name',function(req, res) {
