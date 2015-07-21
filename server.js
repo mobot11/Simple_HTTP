@@ -15,13 +15,13 @@ app.get("/users", function(req, res) {
 		if (err) throw err;
 		var count = 0;
 		files.forEach(function(file) {
-			count++
+			count++;
 			fs.readFile(dir+file, 'utf-8', function(err,json) {
 				if (err) throw err;
 				data[file]=json;
 				count--;
 				if(count===0) {
-					res.send(data);
+					res.json(data);
 				}
 			});
 		});
@@ -36,44 +36,39 @@ app.get("/user/:name", function(req,res) {
 	fs.readFile(__dirname + '/userData/' + fileName, 'utf-8', function(err, data) {
 		if(err) throw err;
 		console.log(data);
-		res.send(data);
+		res.json(data);
 	});
 });
 
-app.post('/user/userPost/:name',function(req,res){
+app.post('/user/userPost',function(req,res){
 	var userData = req.body;
 	var name = req.params.name;
 	var file = name.slice(1,name.length);
 	var fileName = __dirname + '/userData/' + file + '.json';
-	fs.exists(fileName, function(exists) {
+	fs.exists(fileName, function(err, exists) {
 		if(exists) {
-			res.send('this user already exists');
+			throw err
 		 } 
 		else {
 			fs.writeFile(fileName, JSON.stringify(userData), function(err) {
 				if(err) throw err;
 				res.send('success user ' + file + ' was created');
-			})
+			});
 		}
-	})
- 
+	});
 });
 
-app.delete('/user/userDelete:name',function(req, res) {
+app.delete('/user/userDelete/:name',function(req, res) {
 	var name = req.params.name;
 	var file = name.slice(1,name.length);
 	var fileName = __dirname + '/userData/' + file + '.json';
 	fs.unlink(fileName, function(err) {
 		if(err) throw err;
-		console.log(file + ' successfully deleted!');
+		res.json({msg: 'user has been deleted'});
 	});
 });
 
-app.listen(port,function(){
-  console.log("Started on PORT " + port);
-});
-
-app.patch('/user/userPatch:name', function(req, res) {
+app.patch('/user/userPatch/:name', function(req, res) {
 	var name = req.params.name;
 	var file = name.slice(1,name.length);
 	var newData = req.body;
@@ -81,8 +76,6 @@ app.patch('/user/userPatch:name', function(req, res) {
 	fs.readFile(fileName, function(err,data) {
 		if(err) throw err;
 		var fileData = JSON.parse(data.toString());
-		console.log(fileData);
-
 		for(var key in newData) {
 			if(newData[key] === undefined) {
 				continue;
@@ -91,13 +84,16 @@ app.patch('/user/userPatch:name', function(req, res) {
 				fileData[key] = newData[key]
 			}
 		}
-		console.log(fileData);
    fs.writeFile(fileName, JSON.stringify(fileData), function(err) {
    	if(err) throw err;
+   	res.json({msg: 'User has been updated'});
    })
 	});
 })
 
+app.listen(port,function(){
+  console.log("Started on PORT " + port);
+});
 
 
 
